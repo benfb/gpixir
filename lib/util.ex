@@ -1,8 +1,20 @@
 defmodule Gpixir.Util do
   @moduledoc "Utility functions for a genetic programming library for Elixir"
-  # def repeatedly(f, n) do
+  # def repeatedly2(f, n) do
   #   Stream.repeatedly(f) |> Enum.take(n)
   # end
+
+  defmacro repeatedly(f, n) do
+    quote do
+      unquote(f) |> Stream.repeatedly |> Enum.take(unquote(n))
+    end
+  end
+
+  defmacro repeat(f, n) do
+    quote do
+      [unquote(f)] |> Stream.cycle |> Enum.take(unquote(n))
+    end
+  end
 
   # from http://stackoverflow.com/a/28700529
   def sum_list(list), do: Enum.reduce(list, 0, &(&1 + &2))

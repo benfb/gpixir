@@ -2,7 +2,7 @@ defmodule Gpixir do
   @moduledoc "A genetic programming library for Elixir"
   import IO, only: [puts: 1]
   import Enum, only: [count: 1, map: 2, into: 2, take: 2]
-  import Stream, only: [repeatedly: 1, concat: 2]
+  import Stream, only: [concat: 2]
   import Gpixir.Util
   def function_table do
     Enum.zip(["and", "or", "nand", "nor", "not"],
@@ -38,7 +38,7 @@ defmodule Gpixir do
       # puts Macro.to_string(f)
       # puts "Arity: #{arity(f)}"
       # USE MACROS AND QUOTING/THE AST INSTEAD OF NESTED CALLS
-      f.(repeatedly(fn() -> random_code(depth - 1) end) |> Enum.take(arity(f)))
+      f.(repeatedly(fn() -> random_code(depth - 1) end, arity(f)))
       # Stream.map(&(repeatedly(fn() -> random_code(depth - 1) end) |> Stream.take(arity(&1))), f)
       # Stream.concat([f], repeatedly(fn() -> random_code(depth - 1) end) |> take(arity(f)))
     end
@@ -73,7 +73,7 @@ defmodule Gpixir do
       puts "The thing is: #{Macro.to_string(i)}"
       i
     else
-      random_subtree(Enum.random(List.flatten([Stream.map(tl(i), fn(a) -> repeatedly(a) |> take(codesize(a)) end)])))
+      random_subtree(Enum.random(List.flatten([Stream.map(tl(i), fn(a) -> repeatedly(a, codesize(a)) end)])))
     end
   end
 
@@ -84,7 +84,7 @@ defmodule Gpixir do
       # zipped = Enum.zip(tl(i), one_to_inf)
       # puts "The thing: #{Macro.to_string(zipped)}"
       position_to_change = Enum.zip(tl(i), one_to_inf)
-                           |> Enum.map(fn{a, b} -> Stream.cycle([codesize(a)]) |> take b end)
+                           |> Enum.map(fn{a, b} -> repeat(codesize(a), b) end)
                            |> Stream.concat
                            |> Enum.random
       map(Enum.zip(for(n <- zero_to_inf, do: n == position_to_change), i), fn{a, b} ->
@@ -120,7 +120,7 @@ defmodule Gpixir do
   def select(population, tournament_size) do
     puts "Selecting!!"
     size = count(population)
-    Enum.fetch(population, Enum.min(Enum.to_list(Stream.cycle([:rand.uniform(size)]) |> take(tournament_size))))
+    Enum.fetch(population, Enum.min(Enum.to_list(repeat(:rand.uniform(size), tournament_size))))
   end
 
   def evolve_sub(generation, population, size) do
@@ -136,17 +136,17 @@ defmodule Gpixir do
       puts "Success: #{Macro.to_string best}"
       # puts "Success: #{Macro.to_string(Macro.expand(best, __ENV__))}"
     else
-      mutated = repeatedly(mutate(select(population, 5))) |> take(round(size * 0.05))
-      crossed_over = repeatedly(crossover(select(population, 5), select(population, 5))) |> take(round(size * 0.8))
+      mutated = repeatedly(mutate(select(population, 5)), round(size * 0.05))
+      crossed_over = repeatedly(crossover(select(population, 5), select(population, 5)), round(size * 0.8))
       mut_and_crossed = concat(mutated, crossed_over)
-      selected = repeatedly(fn() -> select(population, 5) end) |> take(round(size * 0.1))
+      selected = repeatedly(fn() -> select(population, 5) end, round(size * 0.1))
       evolve_sub(generation + 1, sort_by_error(Enum.to_list(concat(mut_and_crossed, selected))), size)
     end
   end
 
   def evolve(popsize) do
     puts "Starting evolution..."
-    to_sort = Enum.to_list(repeatedly(fn() -> random_code(2) end) |> take(popsize))
+    to_sort = Enum.to_list(repeatedly(fn() -> random_code(2) end, popsize))
     evolve_sub(0, sort_by_error(to_sort), popsize)
   end
 end
