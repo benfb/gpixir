@@ -73,7 +73,11 @@ defmodule Gpixir do
       puts "The thing is: #{Macro.to_string(i)}"
       i
     else
-      random_subtree(Enum.random(List.flatten([Stream.map(tl(i), fn(a) -> repeatedly(a, codesize(a)) end)])))
+      tl(i) |> map(fn(a) -> repeatedly(a, codesize(a)) end)
+            |> List.flatten
+            |> Enum.random
+            |> random_subtree
+      # random_subtree(Enum.random(List.flatten([Stream.map(tl(i), fn(a) -> repeatedly(a, codesize(a)) end)])))
     end
   end
 
@@ -112,7 +116,9 @@ defmodule Gpixir do
     errors = population |> map(&(Enum.concat([error(&1)], [&1])))
     puts "Got errors!!"
     puts Macro.to_string errors
-    es = into([], errors |> Enum.sort(fn([err1, _], [err2, _]) -> err1 < err2 end) |> map(&second/1))
+    es = into([], errors
+                  |> Enum.sort(fn([err1, _], [err2, _]) -> err1 < err2 end)
+                  |> map(&second/1))
     puts Macro.to_string es
     es
   end
@@ -120,7 +126,9 @@ defmodule Gpixir do
   def select(population, tournament_size) do
     puts "Selecting!!"
     size = count(population)
-    Enum.fetch(population, Enum.min(Enum.to_list(repeat(:rand.uniform(size), tournament_size))))
+    Enum.fetch(population, repeat(:rand.uniform(size), tournament_size)
+                           |> Enum.to_list
+                           |> Enum.min)
   end
 
   def evolve_sub(generation, population, size) do
