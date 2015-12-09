@@ -1,7 +1,7 @@
 defmodule Gpixir do
   @moduledoc "A genetic programming library for Elixir"
   import IO, only: [puts: 1]
-  import Enum, only: [count: 1, map: 2, into: 2, take: 2, zip: 2, random: 1]
+  import Enum, only: [count: 1, map: 2, into: 2, take: 2, zip: 2, random: 1, to_list: 1]
   import Stream, only: [concat: 2]
   import Gpixir.Util
   @function_table zip(["and", "or", "nand", "nor", "not"],
@@ -125,7 +125,7 @@ defmodule Gpixir do
     puts "Selecting!!"
     size = count(population)
     Enum.fetch(population, repeat(:rand.uniform(size), tournament_size)
-                           |> Enum.to_list
+                           |> to_list
                            |> Enum.min)
   end
 
@@ -144,15 +144,16 @@ defmodule Gpixir do
     else
       mutated = repeatedly(mutate(select(population, 5)), round(size * 0.05))
       crossed_over = repeatedly(crossover(select(population, 5), select(population, 5)), round(size * 0.8))
-      mut_and_crossed = concat(mutated, crossed_over)
+      mut_and_cross = concat(mutated, crossed_over)
       selected = repeatedly(fn() -> select(population, 5) end, round(size * 0.1))
-      evolve_sub(generation + 1, sort_by_error(Enum.to_list(concat(mut_and_crossed, selected))), size)
+      to_be_sorted = mut_and_cross |> concat(selected) |> to_list |> sort_by_error
+      evolve_sub(generation + 1, to_be_sorted, size)
     end
   end
 
   def evolve(popsize) do
     puts "Starting evolution..."
-    to_sort = Enum.to_list(repeatedly(fn() -> random_code(2) end, popsize))
-    evolve_sub(0, sort_by_error(to_sort), popsize)
+    will_sort = to_list(repeatedly(fn() -> random_code(2) end, popsize))
+    evolve_sub(0, sort_by_error(will_sort), popsize)
   end
 end
