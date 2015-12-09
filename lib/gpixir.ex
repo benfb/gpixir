@@ -1,13 +1,11 @@
 defmodule Gpixir do
   @moduledoc "A genetic programming library for Elixir"
   import IO, only: [puts: 1]
-  import Enum, only: [count: 1, map: 2, into: 2, take: 2]
+  import Enum, only: [count: 1, map: 2, into: 2, take: 2, zip: 2, random: 1]
   import Stream, only: [concat: 2]
   import Gpixir.Util
-  def function_table do
-    Enum.zip(["and", "or", "nand", "nor", "not"],
-             [&p_and/2, &p_or/2, &nand/2, &nor/2, &not/1])
-  end
+  @function_table zip(["and", "or", "nand", "nor", "not"],
+                      [&p_and/2, &p_or/2, &nand/2, &nor/2, &not/1])
 
   @target_data [[false, false, false, true],
                [false, false, true, false],
@@ -19,13 +17,13 @@ defmodule Gpixir do
                [true, true, true, false]]
 
   def random_function do
-    Enum.random(Dict.values(function_table))
+    @function_table |> Dict.values |> random
   end
 
   def random_terminal do
-    Enum.random([fn(in1, _, _) -> in1 end,
-                 fn(_, in2, _) -> in2 end,
-                 fn(_, _, in3) -> in3 end])
+    random([fn(in1, _, _) -> in1 end,
+            fn(_, in2, _) -> in2 end,
+            fn(_, _, in3) -> in3 end])
   end
 
   def random_code(depth) do
@@ -75,7 +73,7 @@ defmodule Gpixir do
     else
       tl(i) |> map(fn(a) -> repeatedly(a, codesize(a)) end)
             |> List.flatten
-            |> Enum.random
+            |> random
             |> random_subtree
       # random_subtree(Enum.random(List.flatten([Stream.map(tl(i), fn(a) -> repeatedly(a, codesize(a)) end)])))
     end
@@ -87,11 +85,11 @@ defmodule Gpixir do
     else
       # zipped = Enum.zip(tl(i), one_to_inf)
       # puts "The thing: #{Macro.to_string(zipped)}"
-      position_to_change = Enum.zip(tl(i), one_to_inf)
-                           |> Enum.map(fn{a, b} -> repeat(codesize(a), b) end)
+      position_to_change = zip(tl(i), one_to_inf)
+                           |> map(fn{a, b} -> repeat(codesize(a), b) end)
                            |> Stream.concat
-                           |> Enum.random
-      map(Enum.zip(for(n <- zero_to_inf, do: n == position_to_change), i), fn{a, b} ->
+                           |> random
+      map(zip(for(n <- zero_to_inf, do: n == position_to_change), i), fn{a, b} ->
           if a do
             replace_random_subtree(b, replacement)
           else
