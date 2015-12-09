@@ -10,7 +10,7 @@ use Mix.Config
 
 # You can configure for your application as:
 #
-#     config :gp, key: :value
+#     config :gpixir, key: :value
 #
 # And access this configuration in your application as:
 #

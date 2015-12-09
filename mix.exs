@@ -1,8 +1,8 @@
-defmodule Gp.Mixfile do
+defmodule Gpixir.Mixfile do
   use Mix.Project
 
   def project do
-    [app: :gp,
+    [app: :gpixir,
      version: "0.0.1",
      elixir: "~> 1.1",
      build_embedded: Mix.env == :prod,

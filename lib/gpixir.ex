@@ -1,9 +1,9 @@
-defmodule Gp do
+defmodule Gpixir do
   @moduledoc "A genetic programming library for Elixir"
   import IO, only: [puts: 1]
   import Enum, only: [count: 1, map: 2, into: 2, take: 2]
   import Stream, only: [repeatedly: 1, concat: 2]
-  import Gp.Util
+  import Gpixir.Util
   def function_table do
     Enum.zip(["and", "or", "nand", "nor", "not"],
              [&p_and/2, &p_or/2, &nand/2, &nor/2, &not/1])

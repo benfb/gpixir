@@ -1,4 +1,4 @@
-defmodule Gp.Util do
+defmodule Gpixir.Util do
   @moduledoc "Utility functions for a genetic programming library for Elixir"
   # def repeatedly(f, n) do
   #   Stream.repeatedly(f) |> Enum.take(n)
