@@ -1,6 +1,6 @@
-# Gp
+# gpixir
 
-**TODO: Add description**
+Basic genetic programming in Elixir, heavily based on https://github.com/lspector/gp
 
 ## Installation
 
