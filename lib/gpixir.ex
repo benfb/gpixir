@@ -135,7 +135,7 @@ defmodule Gpixir do
     puts "======================"
     puts "Generation: #{generation}"
     puts "Best error: #{best_error}"
-    puts "best program: #{Macro.to_string best}"
+    puts "Best program: #{Macro.to_string best}"
     puts "Median error: #{error(Enum.fetch!(population, div(size, 2)))}"
     puts "Average program size: #{Macro.to_string((population |> map(&codesize/1) |> sum_list) / count(population))}"
     if best_error < 100.1 do
